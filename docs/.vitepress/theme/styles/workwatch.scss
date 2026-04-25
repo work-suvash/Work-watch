@@ -1,0 +1,921 @@
+/* ============================================================
+ * WorkWatch — Modern dark glassmorphism theme overhaul.
+ * Loaded last so it overrides earlier rules from style.scss.
+ * ============================================================ */
+
+:root,
+.dark {
+  /* Brand */
+  --ww-primary: #2563eb;
+  --ww-primary-hover: #3b82f6;
+  --ww-accent: #38bdf8;
+  --ww-accent-soft: rgba(56, 189, 248, 0.18);
+
+  /* Surfaces */
+  --ww-bg: #0f172a;
+  --ww-bg-deep: #0a1122;
+  --ww-surface: #1e293b;
+  --ww-surface-2: #243149;
+  --ww-glass-bg: rgba(30, 41, 59, 0.55);
+  --ww-glass-border: rgba(148, 163, 184, 0.14);
+  --ww-glass-border-strong: rgba(148, 163, 184, 0.22);
+
+  /* Typography */
+  --ww-text: #e2e8f0;
+  --ww-text-muted: #94a3b8;
+  --ww-text-strong: #f8fafc;
+
+  /* Effects */
+  --ww-radius-sm: 10px;
+  --ww-radius-md: 12px;
+  --ww-radius-lg: 16px;
+  --ww-shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.25);
+  --ww-shadow-md: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --ww-shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.45);
+  --ww-glow: 0 0 0 1px rgba(56, 189, 248, 0.4),
+    0 8px 28px rgba(37, 99, 235, 0.28);
+
+  --ww-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --ww-dur: 220ms;
+}
+
+/* ---- VitePress variable overrides (dark) ---- */
+.dark,
+html {
+  --vp-c-bg: var(--ww-bg);
+  --vp-c-bg-alt: var(--ww-bg-deep);
+  --vp-c-bg-soft: var(--ww-surface);
+  --vp-c-bg-elv: rgba(30, 41, 59, 0.78);
+  --vp-c-bg-mute: var(--ww-surface);
+
+  --vp-c-text-1: var(--ww-text-strong);
+  --vp-c-text-2: var(--ww-text);
+  --vp-c-text-3: var(--ww-text-muted);
+
+  --vp-c-divider: rgba(148, 163, 184, 0.12);
+  --vp-c-gutter: rgba(148, 163, 184, 0.08);
+  --vp-c-border: rgba(148, 163, 184, 0.18);
+
+  --vp-c-brand-1: var(--ww-accent);
+  --vp-c-brand-2: var(--ww-primary-hover);
+  --vp-c-brand-3: var(--ww-primary);
+  --vp-c-brand-soft: var(--ww-accent-soft);
+
+  /* Buttons */
+  --vp-button-brand-bg: var(--ww-primary);
+  --vp-button-brand-border: transparent;
+  --vp-button-brand-text: #ffffff;
+  --vp-button-brand-hover-bg: var(--ww-primary-hover);
+  --vp-button-brand-hover-border: transparent;
+  --vp-button-brand-hover-text: #ffffff;
+  --vp-button-brand-active-bg: var(--ww-primary);
+  --vp-button-brand-active-text: #ffffff;
+
+  --vp-button-alt-bg: rgba(148, 163, 184, 0.12);
+  --vp-button-alt-text: var(--ww-text);
+  --vp-button-alt-border: rgba(148, 163, 184, 0.18);
+  --vp-button-alt-hover-bg: rgba(148, 163, 184, 0.18);
+  --vp-button-alt-hover-text: var(--ww-text-strong);
+  --vp-button-alt-hover-border: rgba(148, 163, 184, 0.28);
+}
+
+/* ---- Global typography & body ---- */
+html {
+  font-feature-settings: 'cv11', 'ss01', 'ss03';
+}
+
+body {
+  font-family:
+    'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  background: radial-gradient(
+      1200px 600px at 10% -10%,
+      rgba(37, 99, 235, 0.18),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 500px at 110% 10%,
+      rgba(56, 189, 248, 0.14),
+      transparent 60%
+    ),
+    var(--ww-bg);
+  color: var(--ww-text);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: rgba(56, 189, 248, 0.32);
+  color: #ffffff;
+}
+
+/* Scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.28);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.5);
+  background-clip: padding-box;
+}
+
+/* Headings */
+h1, h2, h3, h4 {
+  color: var(--ww-text-strong);
+  letter-spacing: -0.01em;
+}
+h1 { font-weight: 800; }
+h2 { font-weight: 700; }
+h3 { font-weight: 600; }
+
+/* ---- Sticky / glass navbar ---- */
+.VPNavBar {
+  background: transparent !important;
+  transition: background var(--ww-dur) var(--ww-ease),
+    border-color var(--ww-dur) var(--ww-ease),
+    box-shadow var(--ww-dur) var(--ww-ease);
+}
+.VPNavBar.has-sidebar .content,
+.VPNavBar .wrapper {
+  background: transparent !important;
+}
+.VPNav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.VPNavBar:not(.home) {
+  background: rgba(15, 23, 42, 0.85) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--ww-glass-border) !important;
+}
+.VPNavBar.top {
+  background: rgba(15, 23, 42, 0.6) !important;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-bottom: 1px solid transparent !important;
+}
+
+.VPNavBar .title {
+  background: transparent !important;
+  border-bottom-color: transparent !important;
+}
+
+/* Nav menu links */
+.VPNavBarMenuLink,
+.VPNavBarMenu .text {
+  color: var(--ww-text) !important;
+  font-weight: 500;
+  transition: color var(--ww-dur) var(--ww-ease);
+}
+.VPNavBarMenuLink:hover,
+.VPNavBarMenuGroup:hover .text {
+  color: var(--ww-accent) !important;
+}
+
+/* Hide the navbar search box + the right-side overflow ("three dots") menu.
+   The home page already has its own large search input, and the keyboard
+   shortcut Ctrl/Cmd+K still opens the search overlay, so this only removes
+   visual clutter from the navbar. */
+.VPNavBarSearch,
+.VPNavBarExtra,
+.VPNavBarAppearance,
+.VPNavBarTranslations {
+  display: none !important;
+}
+
+/* Push the title/menu to fill the freed space on the right side */
+.VPNavBar .content-body {
+  justify-content: flex-end;
+}
+
+/* ---- Sidebar (glass) ---- */
+.VPSidebar {
+  background: rgba(15, 23, 42, 0.85) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-right: 1px solid var(--ww-glass-border) !important;
+}
+.VPSidebarItem .text {
+  color: var(--ww-text) !important;
+  transition: color var(--ww-dur) var(--ww-ease);
+}
+.VPSidebarItem.is-active > .item .text,
+.VPSidebarItem.is-active > .item .link .text {
+  color: var(--ww-accent) !important;
+  font-weight: 600;
+}
+.VPSidebarItem .link {
+  border-radius: var(--ww-radius-sm);
+  padding: 6px 10px;
+  margin: 2px 0;
+  transition: background var(--ww-dur) var(--ww-ease),
+    transform var(--ww-dur) var(--ww-ease);
+}
+.VPSidebarItem .link:hover {
+  background: rgba(56, 189, 248, 0.08);
+  transform: translateX(2px);
+}
+
+/* ---- Content area ---- */
+.VPContent {
+  background: transparent !important;
+}
+.VPDoc .container {
+  animation: ww-fade-slide var(--ww-dur) var(--ww-ease) both;
+}
+@keyframes ww-fade-slide {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---- Buttons ---- */
+.VPButton {
+  border-radius: var(--ww-radius-md) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.01em;
+  transition: transform var(--ww-dur) var(--ww-ease),
+    box-shadow var(--ww-dur) var(--ww-ease),
+    background var(--ww-dur) var(--ww-ease) !important;
+}
+.VPButton.brand {
+  box-shadow: 0 8px 22px rgba(37, 99, 235, 0.35);
+}
+.VPButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.45);
+}
+.VPButton:active {
+  transform: scale(0.98);
+}
+
+/* ---- Cards (homepage feature/box & doc tables) ---- */
+.VPFeature,
+.VPLink.no-icon,
+.box {
+  background: var(--ww-glass-bg) !important;
+  border: 1px solid var(--ww-glass-border) !important;
+  border-radius: var(--ww-radius-lg) !important;
+  box-shadow: var(--ww-shadow-sm);
+  transition: transform var(--ww-dur) var(--ww-ease),
+    box-shadow var(--ww-dur) var(--ww-ease),
+    border-color var(--ww-dur) var(--ww-ease),
+    background var(--ww-dur) var(--ww-ease) !important;
+}
+.VPFeature:hover,
+.VPLink.no-icon:hover,
+.box:hover {
+  transform: translateY(-3px);
+  border-color: var(--ww-glass-border-strong) !important;
+  box-shadow: var(--ww-shadow-md), var(--ww-glow);
+}
+.VPFeature:active,
+.VPLink.no-icon:active,
+.box:active {
+  transform: scale(0.985);
+}
+
+.VPFeature .title,
+.box .title {
+  color: var(--ww-text-strong) !important;
+  font-weight: 600;
+}
+.VPFeature .details,
+.box .details {
+  color: var(--ww-text-muted) !important;
+}
+
+/* ---- Hero (homepage) ---- */
+.VPHome .VPHero {
+  padding-top: 96px !important;
+  padding-bottom: 16px !important;
+}
+@media (min-width: 768px) {
+  .VPHome .VPHero {
+    padding-top: 88px !important;
+  }
+}
+.VPHome .VPHero .container {
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  margin: 0 auto !important;
+}
+.VPHome .VPHero .main {
+  text-align: center !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+}
+.VPHome .VPHero .name,
+.VPHome .VPHero .text,
+.VPHome .VPHero .name .clip {
+  background: linear-gradient(120deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-align: center !important;
+  display: block !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  line-height: 1.1 !important;
+}
+.VPHome .VPHero .tagline {
+  color: var(--ww-text-muted) !important;
+  text-align: center !important;
+}
+.VPHome .VPHero .actions {
+  justify-content: center !important;
+}
+
+/* Hide the default features grid — replaced by WorkWatchHome */
+.VPHome .VPFeatures {
+  display: none !important;
+}
+
+/* ---- Code blocks ---- */
+div[class*='language-'] {
+  background: rgba(15, 23, 42, 0.6) !important;
+  border: 1px solid var(--ww-glass-border);
+  border-radius: var(--ww-radius-md);
+  backdrop-filter: blur(6px);
+}
+:not(pre) > code {
+  background: rgba(56, 189, 248, 0.12) !important;
+  color: var(--ww-accent) !important;
+  border-radius: 6px;
+  padding: 2px 6px;
+}
+
+/* ---- Custom blocks (info/tip/warning/danger) ---- */
+.custom-block {
+  border-radius: var(--ww-radius-md) !important;
+  border-width: 1px !important;
+  backdrop-filter: blur(6px);
+}
+
+/* ---- Tables ---- */
+.vp-doc table {
+  border-radius: var(--ww-radius-md);
+  overflow: hidden;
+  border: 1px solid var(--ww-glass-border);
+}
+.vp-doc th {
+  background: rgba(56, 189, 248, 0.08) !important;
+  color: var(--ww-text-strong) !important;
+}
+.vp-doc tr {
+  background: transparent !important;
+  transition: background var(--ww-dur) var(--ww-ease);
+}
+.vp-doc tr:hover {
+  background: rgba(148, 163, 184, 0.05) !important;
+}
+
+/* ---- Links ---- */
+.vp-doc a {
+  color: var(--ww-accent);
+  text-decoration: none;
+  transition: color var(--ww-dur) var(--ww-ease);
+}
+.vp-doc a:hover {
+  color: var(--ww-primary-hover);
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+
+/* ---- Local search modal ---- */
+.VPLocalSearchBox {
+  --vp-local-search-bg: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(8px);
+}
+.VPLocalSearchBox .shell {
+  background: var(--ww-surface) !important;
+  border: 1px solid var(--ww-glass-border) !important;
+  border-radius: var(--ww-radius-lg) !important;
+  box-shadow: var(--ww-shadow-lg);
+}
+
+/* ---- Right-side outline (On this page) ---- */
+.VPDocAside,
+.VPDocAsideOutline {
+  background: transparent !important;
+}
+.VPDocAsideOutline .outline-title,
+.VPDocAside .outline-title {
+  color: var(--ww-text-strong) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em;
+}
+.VPDocAside .outline-link {
+  color: var(--ww-text-muted) !important;
+  font-weight: 500;
+  transition: color var(--ww-dur) var(--ww-ease),
+    transform var(--ww-dur) var(--ww-ease);
+  border-radius: var(--ww-radius-sm);
+  padding: 4px 8px;
+  margin-left: -8px;
+}
+.VPDocAside .outline-link:hover {
+  color: var(--ww-accent) !important;
+  transform: translateX(2px);
+}
+.VPDocAside .outline-link.active {
+  color: var(--ww-accent) !important;
+  font-weight: 600;
+}
+.VPDocAside .outline-marker {
+  background-color: var(--ww-accent) !important;
+}
+
+/* ---- Footer ---- */
+.VPFooter {
+  background: transparent !important;
+  border-top: 1px solid var(--ww-glass-border) !important;
+  color: var(--ww-text-muted) !important;
+}
+
+/* ---- Misc: kbd, blockquote ---- */
+.vp-doc kbd {
+  background: rgba(148, 163, 184, 0.12);
+  border: 1px solid var(--ww-glass-border-strong);
+  border-radius: 6px;
+  color: var(--ww-text-strong);
+  padding: 2px 6px;
+  font-size: 0.85em;
+}
+.vp-doc blockquote {
+  border-left: 3px solid var(--ww-accent);
+  background: rgba(56, 189, 248, 0.06);
+  border-radius: 0 var(--ww-radius-md) var(--ww-radius-md) 0;
+  padding: 12px 16px;
+  color: var(--ww-text);
+}
+
+/* ---- Footer (3-column glass) ---- */
+.VPFooter {
+  background: rgba(15, 23, 42, 0.85) !important;
+  border-top: 1px solid var(--ww-glass-border) !important;
+  padding: 16px 24px !important;
+  margin-top: 0 !important;
+}
+.VPFooter .container {
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+}
+.VPFooter .message,
+.VPFooter .copyright {
+  margin: 0 !important;
+  padding: 0 !important;
+  text-align: left !important;
+  color: var(--ww-text-muted) !important;
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+}
+.VPFooter .copyright {
+  display: none !important;
+}
+.ww-footer-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+}
+.ww-footer-left {
+  justify-self: start;
+  color: var(--ww-text-muted);
+}
+.ww-footer-left strong {
+  background: linear-gradient(120deg, #38bdf8, #818cf8);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+}
+.ww-footer-center {
+  justify-self: center;
+  color: var(--ww-text-muted);
+  text-align: center;
+}
+.ww-footer-right {
+  justify-self: end;
+  color: var(--ww-text-muted);
+}
+@media (max-width: 720px) {
+  .ww-footer-row {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: 6px;
+  }
+  .ww-footer-left,
+  .ww-footer-center,
+  .ww-footer-right {
+    justify-self: center;
+  }
+}
+
+/* ---- Polished navbar links (no extra gaps) ---- */
+.VPNavBarMenu {
+  gap: 2px;
+}
+.VPNavBarMenuLink {
+  padding: 6px 12px !important;
+  border-radius: 10px;
+  transition: background var(--ww-dur) var(--ww-ease), color var(--ww-dur) var(--ww-ease);
+}
+.VPNavBarMenuLink:hover {
+  background: rgba(56, 189, 248, 0.1);
+}
+.VPNavBar .divider,
+.VPNavBar .divider-line {
+  display: none !important;
+}
+
+/* Remove the empty doc footer gap on home */
+.VPHome + .VPFooter,
+.VPDoc + .VPFooter {
+  margin-top: 0 !important;
+}
+.VPDoc {
+  padding-bottom: 32px !important;
+}
+
+/* ---- Reduced motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ============================================================
+ * Category-page card grid (boxed sections of site tiles)
+ * Activated when Layout.vue post-processes the doc DOM.
+ * ============================================================ */
+.vp-doc--ww-cards {
+  /* hide the default markdown-style HRs that may slip through */
+  hr { display: none; }
+}
+
+.vp-doc--ww-cards .ww-cat-box {
+  background: var(--ww-glass-bg);
+  border: 1px solid var(--ww-glass-border);
+  border-radius: 18px;
+  padding: 1.5rem 1.5rem 1.75rem;
+  margin: 0 0 1.5rem;
+  backdrop-filter: blur(8px);
+  box-shadow: var(--ww-shadow-sm);
+}
+
+.vp-doc--ww-cards .ww-cat-box > h2,
+.vp-doc--ww-cards .ww-cat-box > h3 {
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  color: var(--ww-text-muted);
+  font-weight: 700;
+  margin: 0 0 1.25rem;
+  padding: 0;
+  border: 0 !important;
+}
+
+.vp-doc--ww-cards .ww-cat-box > h2::before,
+.vp-doc--ww-cards .ww-cat-box > h2::after,
+.vp-doc--ww-cards .ww-cat-box > h3::before,
+.vp-doc--ww-cards .ww-cat-box > h3::after {
+  content: '';
+  display: inline-block;
+  width: 28px;
+  height: 1px;
+  background: var(--ww-glass-border-strong);
+  vertical-align: middle;
+  margin: 0 0.6rem;
+}
+
+.vp-doc--ww-cards .ww-cat-box > h2 a,
+.vp-doc--ww-cards .ww-cat-box > h3 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Top-level H2 with no link list of its own — render as a divider/banner
+   so the page reads "Major Category" → boxes for each sub-category. */
+.vp-doc--ww-cards .ww-cat-banner {
+  margin: 1.5rem 0 1rem;
+  padding: 0.6rem 1rem;
+  border-radius: 12px;
+  background: linear-gradient(
+    90deg,
+    rgba(56, 189, 248, 0.08),
+    rgba(167, 139, 250, 0.08)
+  );
+  border: 1px solid var(--ww-glass-border);
+  text-align: center;
+}
+.vp-doc--ww-cards .ww-cat-banner > h2,
+.vp-doc--ww-cards .ww-cat-banner > h3 {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  background: linear-gradient(135deg, #60a5fa, #a78bfa);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.vp-doc--ww-cards .ww-cat-banner > h2 a,
+.vp-doc--ww-cards .ww-cat-banner > h3 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Notes/paragraphs inside a box */
+.vp-doc--ww-cards .ww-cat-box > .ww-cat-note {
+  font-size: 0.85rem;
+  color: var(--ww-text-muted);
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px dashed var(--ww-glass-border);
+  border-radius: 10px;
+  padding: 0.6rem 0.85rem;
+  margin: 0 0 0.9rem;
+  line-height: 1.5;
+}
+.vp-doc--ww-cards .ww-cat-box > .ww-cat-note a { color: var(--ww-accent); }
+
+/* Tile grid — 5 cols on wide screens, scaling down for narrower viewports */
+.vp-doc--ww-cards .ww-cat-box > ul.ww-cat-grid {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+@media (max-width: 1280px) {
+  .vp-doc--ww-cards .ww-cat-box > ul.ww-cat-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+@media (max-width: 900px) {
+  .vp-doc--ww-cards .ww-cat-box > ul.ww-cat-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 560px) {
+  .vp-doc--ww-cards .ww-cat-box > ul.ww-cat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+}
+
+/* On category pages: hide the right "On this page" outline and let the
+   tile grid use the full content width (with consistent side gap on every
+   viewport). */
+html.ww-on-category .VPDocAside {
+  display: none !important;
+}
+html.ww-on-category .VPDoc.has-aside .content-container,
+html.ww-on-category .VPDoc .container,
+html.ww-on-category .VPDoc .content {
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding-right: 32px !important;
+}
+html.ww-on-category .VPDoc {
+  padding-right: 0 !important;
+}
+
+.vp-doc--ww-cards .ww-cat-box > ul.ww-cat-grid > li.ww-tile {
+  position: relative;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid var(--ww-glass-border);
+  border-radius: 12px;
+  min-height: 92px;
+  padding: 0.9rem 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transition: border-color var(--ww-dur) var(--ww-ease),
+    transform var(--ww-dur) var(--ww-ease),
+    box-shadow var(--ww-dur) var(--ww-ease),
+    background var(--ww-dur) var(--ww-ease),
+    opacity 320ms var(--ww-ease);
+  overflow: visible;
+  /* Reveal-on-scroll initial state — JS adds .is-visible when in viewport */
+  opacity: 0;
+  transform: translateY(8px);
+  will-change: opacity, transform;
+}
+.vp-doc--ww-cards .ww-cat-box > ul.ww-cat-grid > li.ww-tile.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .vp-doc--ww-cards .ww-cat-box > ul.ww-cat-grid > li.ww-tile {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+.vp-doc--ww-cards .ww-cat-box > ul.ww-cat-grid > li.ww-tile:hover {
+  border-color: rgba(56, 189, 248, 0.55);
+  background: rgba(30, 41, 59, 0.85);
+  transform: translateY(-2px);
+  box-shadow: var(--ww-shadow-md);
+  z-index: 5;
+}
+
+.vp-doc--ww-cards .ww-tile-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  text-decoration: none;
+  color: var(--ww-text-strong);
+}
+.vp-doc--ww-cards .ww-tile-link::after { content: ''; position: absolute; inset: 0; }
+
+.vp-doc--ww-cards .ww-tile-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  object-fit: contain;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 2px;
+  flex-shrink: 0;
+  transition: transform var(--ww-dur) var(--ww-ease);
+}
+.vp-doc--ww-cards .ww-tile:hover .ww-tile-icon { transform: scale(1.08); }
+
+.vp-doc--ww-cards .ww-tile-label {
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  word-break: break-word;
+  color: var(--ww-text-strong);
+}
+.vp-doc--ww-cards .ww-tile:hover .ww-tile-label { color: var(--ww-accent); }
+
+/* Hover-revealed metadata popover */
+.vp-doc--ww-cards .ww-tile-meta {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 8px);
+  transform: translateX(-50%) translateY(4px);
+  width: max-content;
+  max-width: 280px;
+  background: var(--ww-bg-deep);
+  border: 1px solid var(--ww-glass-border-strong);
+  border-radius: 10px;
+  padding: 0.55rem 0.7rem;
+  box-shadow: var(--ww-shadow-md);
+  font-size: 0.78rem;
+  color: var(--ww-text-muted);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms var(--ww-ease), transform 150ms var(--ww-ease);
+  z-index: 20;
+}
+.vp-doc--ww-cards .ww-tile:hover .ww-tile-meta {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+.vp-doc--ww-cards .ww-tile-desc {
+  color: var(--ww-text);
+  margin-bottom: 4px;
+  line-height: 1.35;
+}
+.vp-doc--ww-cards .ww-tile-mirrors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+}
+.vp-doc--ww-cards .ww-tile-mirrors a {
+  background: rgba(56, 189, 248, 0.12);
+  color: var(--ww-accent);
+  border-radius: 6px;
+  padding: 1px 6px;
+  font-size: 0.72rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.vp-doc--ww-cards .ww-tile-mirrors a:hover {
+  background: rgba(56, 189, 248, 0.25);
+}
+
+/* The leading title block (h1 + description) */
+.vp-doc--ww-cards > div > .not-prose {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.vp-doc--ww-cards > div > .not-prose h1 {
+  text-decoration: none !important;
+  background: linear-gradient(135deg, #60a5fa, #a78bfa);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ============================================================
+ * Desktop sidebar collapse toggle
+ * ============================================================ */
+.ww-sidebar-toggle {
+  position: fixed;
+  top: 84px;
+  left: calc(var(--vp-sidebar-width, 272px) - 14px);
+  z-index: 60;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 1px solid var(--ww-glass-border-strong);
+  background: var(--ww-bg-deep);
+  color: var(--ww-text);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--ww-shadow-sm);
+  transition:
+    left var(--ww-dur) var(--ww-ease),
+    background var(--ww-dur) var(--ww-ease),
+    border-color var(--ww-dur) var(--ww-ease),
+    transform var(--ww-dur) var(--ww-ease);
+}
+.ww-sidebar-toggle:hover {
+  border-color: var(--ww-accent);
+  color: var(--ww-accent);
+  transform: scale(1.06);
+}
+
+/* Only show the toggle when the sidebar is actually rendered (doc pages, desktop) */
+@media (min-width: 960px) {
+  .VPDoc.has-sidebar ~ * .ww-sidebar-toggle,
+  body:has(.VPSidebar) .ww-sidebar-toggle {
+    display: inline-flex;
+  }
+}
+
+/* Collapsed state: hide the sidebar and reclaim its width */
+html.ww-sidebar-collapsed {
+  --vp-sidebar-width: 0px !important;
+  --vp-layout-max-width: 1440px;
+}
+
+@media (min-width: 960px) {
+  html.ww-sidebar-collapsed .VPSidebar {
+    transform: translateX(-100%);
+    pointer-events: none;
+    visibility: hidden;
+    transition: transform var(--ww-dur) var(--ww-ease);
+  }
+  html.ww-sidebar-collapsed .VPNavBar.has-sidebar .content,
+  html.ww-sidebar-collapsed .VPContent.has-sidebar {
+    padding-left: 0 !important;
+    margin-left: 0 !important;
+  }
+  html.ww-sidebar-collapsed .VPContent.has-sidebar .container,
+  html.ww-sidebar-collapsed .VPContent.has-sidebar .content {
+    margin-left: auto !important;
+  }
+  html.ww-sidebar-collapsed .ww-sidebar-toggle {
+    left: 14px;
+    background: var(--ww-surface);
+  }
+}
