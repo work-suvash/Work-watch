@@ -82,6 +82,7 @@ html {
 /* ---- Global typography & body ---- */
 html {
   font-feature-settings: 'cv11', 'ss01', 'ss03';
+  scroll-behavior: smooth;
 }
 
 body {
@@ -138,32 +139,54 @@ h1 { font-weight: 800; }
 h2 { font-weight: 700; }
 h3 { font-weight: 600; }
 
-/* ---- Sticky / glass navbar ---- */
+/* ---- Fixed glass navbar ---- */
+/* Override VitePress's --vp-nav-bg-color at :root level (same specificity as
+   VitePress's own vars.css, but loaded after, so ours wins in cascade).
+   This prevents the white flash on doc pages before the .dark class applies. */
+:root {
+  --vp-nav-bg-color: var(--ww-bg) !important;
+}
 .VPNavBar {
   background: transparent !important;
   transition: background var(--ww-dur) var(--ww-ease),
     border-color var(--ww-dur) var(--ww-ease),
     box-shadow var(--ww-dur) var(--ww-ease);
 }
-.VPNavBar.has-sidebar .content,
-.VPNavBar .wrapper {
+/* Force ALL inner navbar elements transparent so the parent VPNavBar
+   glass background shows through uniformly — no white flashes. */
+.VPNavBar .wrapper,
+.VPNavBar .container,
+.VPNavBar .content,
+.VPNavBar .content-body,
+.VPNavBar .curtain,
+.VPNavBar .title {
   background: transparent !important;
+  background-color: transparent !important;
 }
+/* Force the nav to always be fixed at the top — never overlap content */
 .VPNav {
-  position: sticky;
+  position: fixed !important;
   top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
   z-index: 100;
 }
+/* Push all page content below the fixed nav bar */
+.VPLayout {
+  padding-top: var(--vp-nav-height) !important;
+}
 .VPNavBar:not(.home) {
-  background: rgba(15, 23, 42, 0.85) !important;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(15, 23, 42, 0.88) !important;
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
   border-bottom: 1px solid var(--ww-glass-border) !important;
+  box-shadow: 0 1px 24px rgba(0, 0, 0, 0.3);
 }
 .VPNavBar.top {
-  background: rgba(15, 23, 42, 0.6) !important;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: rgba(15, 23, 42, 0.65) !important;
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
   border-bottom: 1px solid transparent !important;
 }
 
@@ -200,6 +223,12 @@ h3 { font-weight: 600; }
   justify-content: flex-end;
 }
 
+/* Hide the site logo + name in the navbar on the home page only.
+   The big hero title already identifies the site — the navbar brand is redundant. */
+.VPNavBar.home .title {
+  display: none !important;
+}
+
 /* ---- Sidebar (glass) ---- */
 .VPSidebar {
   background: rgba(15, 23, 42, 0.85) !important;
@@ -232,17 +261,91 @@ h3 { font-weight: 600; }
 .VPContent {
   background: transparent !important;
 }
-.VPDoc .container {
-  animation: ww-fade-slide var(--ww-dur) var(--ww-ease) both;
+
+/* ============================================================
+ * Scroll-reveal system — section-level reveal + card stagger.
+ * Sections fade in as a unit. Cards animate when their parent
+ * section becomes visible, staggering via animation-delay.
+ * JS only needs to add .is-visible to each .ww-section.
+ * ============================================================ */
+
+/* Keyframes */
+@keyframes ww-section-in {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-@keyframes ww-fade-slide {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+@keyframes ww-card-in {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+@keyframes ww-hero-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Sections start hidden; animate in when .is-visible is added */
+.ww-section.ww-reveal {
+  opacity: 0;
+  will-change: opacity, transform;
+}
+.ww-section.ww-reveal.is-visible {
+  animation: ww-section-in 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Cards inside a revealed section stagger in */
+.ww-section.is-visible .ww-card {
+  animation: ww-card-in 460ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.ww-section.is-visible .ww-card:nth-child(1)  { animation-delay:   0ms; }
+.ww-section.is-visible .ww-card:nth-child(2)  { animation-delay:  55ms; }
+.ww-section.is-visible .ww-card:nth-child(3)  { animation-delay: 110ms; }
+.ww-section.is-visible .ww-card:nth-child(4)  { animation-delay: 165ms; }
+.ww-section.is-visible .ww-card:nth-child(5)  { animation-delay: 220ms; }
+.ww-section.is-visible .ww-card:nth-child(6)  { animation-delay: 275ms; }
+.ww-section.is-visible .ww-card:nth-child(7)  { animation-delay: 330ms; }
+.ww-section.is-visible .ww-card:nth-child(8)  { animation-delay: 385ms; }
+.ww-section.is-visible .ww-card:nth-child(n+9){ animation-delay: 440ms; }
+
+/* Hero top elements (search bar, toolbar) slide in on load */
+.ww-hero-item {
+  animation: ww-hero-in 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.ww-hero-item:nth-child(1) { animation-delay:  80ms; }
+.ww-hero-item:nth-child(2) { animation-delay: 160ms; }
+
+/* Doc page content fade-in — whole container slides in */
+.ww-doc-reveal {
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity 500ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.ww-doc-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Individual doc elements stagger with delay */
+.ww-doc-reveal:nth-child(1)  { transition-delay:   0ms; }
+.ww-doc-reveal:nth-child(2)  { transition-delay:  40ms; }
+.ww-doc-reveal:nth-child(3)  { transition-delay:  80ms; }
+.ww-doc-reveal:nth-child(4)  { transition-delay: 120ms; }
+.ww-doc-reveal:nth-child(5)  { transition-delay: 160ms; }
+.ww-doc-reveal:nth-child(n+6){ transition-delay: 200ms; }
+
+/* Reduced-motion: disable everything */
+@media (prefers-reduced-motion: reduce) {
+  .ww-section.ww-reveal,
+  .ww-section.ww-reveal.is-visible,
+  .ww-section.is-visible .ww-card,
+  .ww-hero-item,
+  .ww-doc-reveal,
+  .ww-doc-reveal.is-visible {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
   }
 }
 
@@ -419,6 +522,11 @@ div[class*='language-'] {
 }
 
 /* ---- Right-side outline (On this page) ---- */
+/* Target both the Vue component root AND its outer wrapper divs */
+.aside,
+.aside-curtain,
+.aside-container,
+.aside-content,
 .VPDocAside,
 .VPDocAsideOutline {
   background: transparent !important;
@@ -448,13 +556,6 @@ div[class*='language-'] {
 }
 .VPDocAside .outline-marker {
   background-color: var(--ww-accent) !important;
-}
-
-/* ---- Footer ---- */
-.VPFooter {
-  background: transparent !important;
-  border-top: 1px solid var(--ww-glass-border) !important;
-  color: var(--ww-text-muted) !important;
 }
 
 /* ---- Misc: kbd, blockquote ---- */
@@ -700,8 +801,9 @@ div[class*='language-'] {
 
 /* On category pages: hide the right "On this page" outline and let the
    tile grid use the full content width (with consistent side gap on every
-   viewport). */
-html.ww-on-category .VPDocAside {
+   viewport). Target both the Vue component root AND the wrapper div. */
+html.ww-on-category .VPDocAside,
+html.ww-on-category .aside {
   display: none !important;
 }
 html.ww-on-category .VPDoc.has-aside .content-container,

@@ -342,7 +342,14 @@ function maybeTransform() {
 
 watch(
   () => route.path,
-  () => maybeTransform(),
+  () => {
+    maybeTransform()
+    // Re-apply doc reveal on every page navigation
+    nextTick(() => {
+      initDocReveal()
+      applyDocReveal()
+    })
+  },
   { immediate: false }
 )
 
@@ -428,6 +435,54 @@ function toggleSidebar() {
   applySidebarState()
 }
 
+// ---- Global scroll-reveal for doc pages ----
+let docRevealObserver: IntersectionObserver | null = null
+
+function initDocReveal() {
+  if (typeof window === 'undefined' || typeof IntersectionObserver === 'undefined') return
+  docRevealObserver?.disconnect()
+  docRevealObserver = new IntersectionObserver(
+    (entries, obs) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue
+        ;(entry.target as HTMLElement).classList.add('is-visible')
+        obs.unobserve(entry.target)
+      }
+    },
+    { rootMargin: '60px 0px -20px 0px', threshold: 0.04 }
+  )
+}
+
+function applyDocReveal() {
+  requestAnimationFrame(() => {
+    nextTick(() => {
+      const vpdoc = document.querySelector('.vp-doc') as HTMLElement | null
+      if (!vpdoc || !docRevealObserver) return
+
+      const isCat = isCategoryPath(route.path)
+      let els: NodeListOf<HTMLElement>
+
+      if (isCat) {
+        // On category pages, only animate the top-level boxes/banners.
+        // Do NOT descend into .ww-cat-box children — tiles have their own observer.
+        els = vpdoc.querySelectorAll<HTMLElement>('.ww-cat-box,.ww-cat-banner')
+      } else {
+        // On regular doc pages, animate headings, paragraphs, lists, etc.
+        els = vpdoc.querySelectorAll<HTMLElement>(
+          'h2,h3,p,ul,ol,table,blockquote,.custom-block,pre'
+        )
+      }
+
+      els.forEach((el) => {
+        if (!el.classList.contains('ww-doc-reveal')) {
+          el.classList.add('ww-doc-reveal')
+        }
+        docRevealObserver!.observe(el)
+      })
+    })
+  })
+}
+
 onMounted(() => {
   window.addEventListener('click', handleClick, { capture: true })
   try {
@@ -435,10 +490,14 @@ onMounted(() => {
   } catch {}
   applySidebarState()
   maybeTransform()
+  initDocReveal()
+  applyDocReveal()
 })
 
 onUnmounted(() => {
   window.removeEventListener('click', handleClick, { capture: true })
+  docRevealObserver?.disconnect()
+  docRevealObserver = null
 })
 </script>
 

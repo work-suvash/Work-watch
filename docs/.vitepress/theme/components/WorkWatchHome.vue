@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 
 type Category = {
   id: string
@@ -225,6 +225,43 @@ watch(view, (v) => {
   } catch {}
 })
 
+function hideSuggestions() {
+  window.setTimeout(() => { showSuggestions.value = false }, 150)
+}
+
+// ---- Scroll-reveal: observe SECTIONS only, cards stagger via CSS ----
+let homeObserver: IntersectionObserver | null = null
+
+function revealSections() {
+  if (typeof window === 'undefined' || typeof IntersectionObserver === 'undefined') {
+    // Fallback: show everything immediately
+    document.querySelectorAll<HTMLElement>('.ww-home .ww-section.ww-reveal')
+      .forEach(el => el.classList.add('is-visible'))
+    return
+  }
+  homeObserver?.disconnect()
+  homeObserver = new IntersectionObserver(
+    (entries, obs) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue
+        const el = entry.target as HTMLElement
+        el.classList.add('is-visible')
+        obs.unobserve(el)
+      }
+    },
+    // Pre-load 80px before the element reaches the viewport bottom so the
+    // animation is already playing by the time the user sees it.
+    { rootMargin: '0px 0px -20px 0px', threshold: 0.04 }
+  )
+  // Use rAF to ensure DOM is fully painted before observing
+  requestAnimationFrame(() => {
+    nextTick(() => {
+      const sections = document.querySelectorAll<HTMLElement>('.ww-home .ww-section.ww-reveal:not(.is-visible)')
+      sections.forEach(el => homeObserver!.observe(el))
+    })
+  })
+}
+
 onMounted(() => {
   try {
     const b = localStorage.getItem(BOOKMARK_KEY)
@@ -235,13 +272,24 @@ onMounted(() => {
     if (r) recentIds.value = JSON.parse(r)
   } catch {}
   hydrated.value = true
+  revealSections()
+})
+
+onUnmounted(() => {
+  homeObserver?.disconnect()
+  homeObserver = null
+})
+
+// Re-run observer after reactive data changes (search, view, hydration)
+watch([filtered, view, hydrated], () => {
+  nextTick(() => revealSections())
 })
 </script>
 
 <template>
   <div class="ww-home">
     <!-- Search bar -->
-    <div class="ww-search-wrap" :class="{ 'has-suggestions': showSuggestions && suggestions.length }">
+    <div class="ww-search-wrap ww-hero-item" :class="{ 'has-suggestions': showSuggestions && suggestions.length }">
       <div class="ww-search">
         <svg class="ww-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="11" cy="11" r="8" />
@@ -253,7 +301,7 @@ onMounted(() => {
           placeholder="Search categories…"
           class="ww-search-input"
           @focus="showSuggestions = true"
-          @blur="window.setTimeout(() => (showSuggestions = false), 150)"
+          @blur="hideSuggestions"
         />
         <button v-if="search" class="ww-search-clear" aria-label="Clear" @click="clearSearch">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -276,7 +324,7 @@ onMounted(() => {
     </div>
 
     <!-- Filters + view toggle -->
-    <div class="ww-toolbar">
+    <div class="ww-toolbar ww-hero-item">
       <div class="ww-chips" role="tablist">
         <button
           v-for="g in GROUPS"
@@ -321,7 +369,7 @@ onMounted(() => {
     </div>
 
     <!-- Bookmarks -->
-    <section v-if="hydrated && bookmarkedCategories.length" class="ww-section">
+    <section v-if="hydrated && bookmarkedCategories.length" class="ww-section ww-reveal">
       <header class="ww-section-head">
         <h3 class="ww-section-title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -359,7 +407,7 @@ onMounted(() => {
     </section>
 
     <!-- Recently viewed -->
-    <section v-if="hydrated && recentCategories.length" class="ww-section">
+    <section v-if="hydrated && recentCategories.length" class="ww-section ww-reveal">
       <header class="ww-section-head">
         <h3 class="ww-section-title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -399,7 +447,7 @@ onMounted(() => {
     </section>
 
     <!-- Trending -->
-    <section v-if="!search && activeGroup === 'All'" class="ww-section">
+    <section v-if="!search && activeGroup === 'All'" class="ww-section ww-reveal">
       <header class="ww-section-head">
         <h3 class="ww-section-title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -435,7 +483,7 @@ onMounted(() => {
     </section>
 
     <!-- All / filtered -->
-    <section class="ww-section">
+    <section class="ww-section ww-reveal">
       <header class="ww-section-head">
         <h3 class="ww-section-title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -486,6 +534,10 @@ onMounted(() => {
   margin: 0 auto;
   padding: 8px 24px 64px;
   color: var(--ww-text, #e2e8f0);
+  /* Own stacking context so the search suggestions always float above
+     the VPHero section that is rendered before this component in the DOM */
+  position: relative;
+  z-index: 2;
 }
 
 /* ---- Search ---- */
@@ -493,6 +545,8 @@ onMounted(() => {
   position: relative;
   margin: 0 auto 24px;
   max-width: 640px;
+  /* Lift search wrap above sibling sections so the dropdown never hides behind cards */
+  z-index: 20;
 }
 .ww-search {
   position: relative;
